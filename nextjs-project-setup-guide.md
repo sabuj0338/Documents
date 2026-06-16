@@ -712,6 +712,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 }
 ```
 
+### Page Loader (`nextjs-toploader`)
+Notice the `<NextTopLoader />` component right below the `<body>` tag. This automatically intercepts Next.js link clicks and router navigation events to show a thin, YouTube-style progress bar at the top of the screen. This drastically improves perceived performance for users during server-side transitions.
+
 ---
 
 ## 16. Error & Not Found Pages
