@@ -1,4 +1,5 @@
 # Next.js 16 Enterprise Project Setup Guide
+
 **Sabuj Engineering Standards — Production-Ready Architecture**
 **Version:** 2.0.0
 
@@ -18,6 +19,7 @@ This is a comprehensive, step-by-step blueprint for building **secure, scalable,
 ## 1. Best Practices & Security Concerns
 
 ### 1.1 Security Strategy
+
 - **HttpOnly Cookies**: Never store JWTs or Refresh Tokens in `localStorage`. They must be handled via secure, `httpOnly`, `sameSite`, `secure` cookies set by the backend or Next.js route handlers.
 - **Proxy-Level Protection**: Use `src/proxy.ts` (Next.js 16 convention) to intercept every request, ensuring unauthenticated users cannot reach private routes and authenticated users are redirected away from auth pages.
 - **Validation at Every Layer**: Use Zod for client-side form validation and server-side API boundary checks.
@@ -25,6 +27,7 @@ This is a comprehensive, step-by-step blueprint for building **secure, scalable,
 - **Route Matching**: Never use `pathname.includes()` for route protection — it creates false positives like `/usersettings` matching `/users`. Use exact match + `startsWith(prefix + '/')`.
 
 ### 1.2 Recommended Development Tools
+
 - **pnpm**: Superior disk space management and performance. Mandatory for all projects.
 - **Shadcn CLI**: Generates owned UI source code — no library lock-in.
 - **Turbopack**: Default dev engine in Next.js 16 for near-instant HMR.
@@ -34,29 +37,29 @@ This is a comprehensive, step-by-step blueprint for building **secure, scalable,
 
 ## 2. The Tech Stack (The "Why")
 
-| Layer | Tool | Why this tool? |
-|---|---|---|
-| **Framework** | Next.js 16 (App Router) | Industry-standard React framework with SSR, SSG, streaming, and built-in SEO optimization. |
-| **Language** | TypeScript (strict) | Compile-time type safety catches bugs before runtime. |
-| **Styling** | Tailwind CSS | Utility-first CSS eliminates naming conflicts and dead CSS. |
-| **UI** | ShadCN UI | Accessible, customizable components you own — no library updates to chase. |
-| **Component Variants** | CVA (class-variance-authority) | Declarative variant-driven styling for custom components (e.g., Timeline). |
-| **State** | Redux Toolkit | Predictable global state with powerful devtools for complex enterprise data flows. |
-| **Server State** | RTK Query | Advanced caching, automatic re-fetching, optimistic updates, and built-in loading/error states. |
-| **Forms** | React Hook Form | Performant form state management with minimal re-renders. |
-| **Validation** | Zod | Single source of truth for schema validation — works on client and server. |
-| **HTTP** | Axios | File uploads with progress, manual non-cached requests. |
-| **Tables** | TanStack Table | Headless table with server-side sorting, filtering, and pagination. |
-| **i18n** | next-intl | Type-safe internationalization built specifically for the Next.js App Router. |
-| **Theming** | next-themes | Dark/light mode with zero-flash using `attribute="class"`. |
-| **Page Loader** | nextjs-toploader | Top progress bar on navigation for perceived performance. |
-| **Phone Input** | react-phone-number-input | International E.164 phone input with country selector. |
-| **Dates** | date-fns + react-day-picker | Lightweight date formatting and calendar picker. |
-| **Cookies** | cookies-next | Non-sensitive cookie helpers for simple SaaS. For auth, use Next.js `cookies()`. |
-| **Monitoring** | Sentry | Error tracking and performance monitoring in production. |
-| **Testing** | Vitest + RTL + Playwright | Fast unit tests + reliable E2E coverage. |
-| **API Types** | OpenAPI codegen | Generated contracts from backend schema — never hand-maintain large response types. |
-| **Code Quality** | ESLint + Prettier | Consistent linting and formatting. |
+| Layer                  | Tool                           | Why this tool?                                                                                  |
+| ---------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------- |
+| **Framework**          | Next.js 16 (App Router)        | Industry-standard React framework with SSR, SSG, streaming, and built-in SEO optimization.      |
+| **Language**           | TypeScript (strict)            | Compile-time type safety catches bugs before runtime.                                           |
+| **Styling**            | Tailwind CSS                   | Utility-first CSS eliminates naming conflicts and dead CSS.                                     |
+| **UI**                 | ShadCN UI                      | Accessible, customizable components you own — no library updates to chase.                      |
+| **Component Variants** | CVA (class-variance-authority) | Declarative variant-driven styling for custom components (e.g., Timeline).                      |
+| **State**              | Redux Toolkit                  | Predictable global state with powerful devtools for complex enterprise data flows.              |
+| **Server State**       | RTK Query                      | Advanced caching, automatic re-fetching, optimistic updates, and built-in loading/error states. |
+| **Forms**              | React Hook Form                | Performant form state management with minimal re-renders.                                       |
+| **Validation**         | Zod                            | Single source of truth for schema validation — works on client and server.                      |
+| **HTTP**               | Axios                          | File uploads with progress, manual non-cached requests.                                         |
+| **Tables**             | TanStack Table                 | Headless table with server-side sorting, filtering, and pagination.                             |
+| **i18n**               | next-intl                      | Type-safe internationalization built specifically for the Next.js App Router.                   |
+| **Theming**            | next-themes                    | Dark/light mode with zero-flash using `attribute="class"`.                                      |
+| **Page Loader**        | nextjs-toploader               | Top progress bar on navigation for perceived performance.                                       |
+| **Phone Input**        | react-phone-number-input       | International E.164 phone input with country selector.                                          |
+| **Dates**              | date-fns + react-day-picker    | Lightweight date formatting and calendar picker.                                                |
+| **Cookies**            | cookies-next                   | Non-sensitive cookie helpers for simple SaaS. For auth, use Next.js `cookies()`.                |
+| **Monitoring**         | Sentry                         | Error tracking and performance monitoring in production.                                        |
+| **Testing**            | Vitest + RTL + Playwright      | Fast unit tests + reliable E2E coverage.                                                        |
+| **API Types**          | OpenAPI codegen                | Generated contracts from backend schema — never hand-maintain large response types.             |
+| **Code Quality**       | ESLint + Prettier              | Consistent linting and formatting.                                                              |
 
 ---
 
@@ -126,6 +129,7 @@ echo "✅ Setup Complete! You can now apply the boilerplate files from the guide
 ```
 
 **Why these flags:**
+
 - `--app` → Always App Router. Never Pages Router.
 - `--src-dir` → All code lives under `src/`. Keeps root clean.
 - `--import-alias "@/*"` → Clean imports everywhere.
@@ -153,12 +157,10 @@ src/
 │   ├── globals.css
 │   └── layout.tsx                      # Root layout — all providers
 │
-├── proxy.ts                             # Route protection + i18n
+├── proxy.ts                             # Route protection
 │
 ├── i18n/
-│   ├── routing.ts                      # next-intl locale config
-│   ├── request.ts                      # next-intl server request config
-│   └── navigation.ts                   # Typed Link, useRouter, usePathname
+│   └── request.ts                      # next-intl server request config
 │
 ├── messages/
 │   └── en.json                         # English translations (default)
@@ -216,7 +218,7 @@ src/
 │   ├── pagination.ts                   # PaginatedResponse
 │   └── global.d.ts                     # Tiny utility types only
 │
-├── auth/
+├── security/
 │   ├── permissions.ts                  # Permission constants/helpers
 │   ├── guards.ts                       # Server-side route guards
 │   └── Can.tsx                         # Component-level permission guard
@@ -230,6 +232,7 @@ src/
 ## 6. Environment Configuration
 
 ### `.env.local` (never commit)
+
 ```env
 NEXT_PUBLIC_APP_NAME=My App
 API_URL=http://localhost:3001/api/v1
@@ -237,6 +240,7 @@ NEXT_PUBLIC_DEFAULT_LOCALE=en
 ```
 
 ### `.env.example` (always commit)
+
 ```env
 NEXT_PUBLIC_APP_NAME=My App
 API_URL=http://localhost:3001/api/v1
@@ -250,10 +254,10 @@ Add `.env.local` to `.gitignore`.
 ## 7. next.config.ts
 
 ```typescript
-import type { NextConfig } from 'next';
-import createNextIntlPlugin from 'next-intl/plugin';
+import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
-const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   // Your Next.js 16 specific config here
@@ -266,45 +270,27 @@ export default withNextIntl(nextConfig);
 
 ## 8. Internationalization (next-intl)
 
-### `src/i18n/routing.ts`
-```typescript
-import { defineRouting } from 'next-intl/routing'
-
-export const routing = defineRouting({
-  locales: ['en'],           // Add 'bn', 'ar', etc. when needed
-  defaultLocale: 'en',
-  localePrefix: 'never',     // No /en/ prefix in URLs
-})
-```
+By using a cookie-based approach, we can avoid Next.js dynamic `[locale]` routing segments completely.
 
 ### `src/i18n/request.ts`
-```typescript
-import { getRequestConfig } from 'next-intl/server'
-import { routing } from './routing'
 
-export default getRequestConfig(async ({ requestLocale }) => {
-  let locale = await requestLocale
-  if (!locale || !routing.locales.includes(locale as 'en')) {
-    locale = routing.defaultLocale
-  }
+```typescript
+import { getRequestConfig } from "next-intl/server";
+import { cookies } from "next/headers";
+
+export default getRequestConfig(async () => {
+  const store = await cookies();
+  const locale = store.get("locale")?.value || "en";
+
   return {
     locale,
     messages: (await import(`../messages/${locale}.json`)).default,
-  }
-})
-```
-
-### `src/i18n/navigation.ts`
-```typescript
-import { createNavigation } from 'next-intl/navigation'
-import { routing } from './routing'
-
-// Use these instead of next/navigation — they are locale-aware
-export const { Link, redirect, useRouter, usePathname } =
-  createNavigation(routing)
+  };
+});
 ```
 
 ### `src/messages/en.json`
+
 ```json
 {
   "common": {
@@ -345,6 +331,7 @@ export const { Link, redirect, useRouter, usePathname } =
 **Rule:** All user-visible strings go into the message file. Never hardcode UI text.
 
 > **Tip:** In Server Components (async), use `getTranslations`:
+>
 > ```typescript
 > import { getTranslations } from 'next-intl/server';
 > export default async function Page() {
@@ -360,33 +347,35 @@ export const { Link, redirect, useRouter, usePathname } =
 **Rule:** Never store auth tokens in `localStorage`. Do not expose refresh tokens to client JavaScript.
 
 ### `src/lib/auth.ts`
-```typescript
-import { cookies } from 'next/headers'
 
-export const REFRESH_TOKEN_KEY = 'refreshToken'
-export const ACCESS_TOKEN_KEY = 'accessToken'
+```typescript
+import { cookies } from "next/headers";
+
+export const REFRESH_TOKEN_KEY = "refreshToken";
+export const ACCESS_TOKEN_KEY = "accessToken";
 
 export async function getServerAccessToken() {
-  const cookieStore = await cookies()
-  return cookieStore.get(ACCESS_TOKEN_KEY)?.value
+  const cookieStore = await cookies();
+  return cookieStore.get(ACCESS_TOKEN_KEY)?.value;
 }
 
 export async function hasRefreshSession() {
-  const cookieStore = await cookies()
-  return Boolean(cookieStore.get(REFRESH_TOKEN_KEY)?.value)
+  const cookieStore = await cookies();
+  return Boolean(cookieStore.get(REFRESH_TOKEN_KEY)?.value);
 }
 ```
 
 ### Route handler owns refresh — `src/app/api/auth/refresh/route.ts`
+
 ```typescript
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server";
 
 export async function POST() {
   // Read httpOnly refresh cookie on the server.
   // Call backend refresh endpoint.
   // Set new httpOnly cookies on the response.
   // Return only safe session/user data to the browser.
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true });
 }
 ```
 
@@ -397,49 +386,61 @@ export async function POST() {
 **What changed in Next.js 16:** `middleware.ts` is renamed to `proxy.ts`, and `export default function middleware` → `export function proxy`. Core functionality is identical.
 
 ### `src/proxy.ts`
+
 ```typescript
-import createIntlMiddleware from 'next-intl/middleware'
-import { NextRequest, NextResponse } from 'next/server'
-import { routing } from './i18n/routing'
+import { NextRequest, NextResponse } from "next/server";
 
-const intlMiddleware = createIntlMiddleware(routing)
-
-const PRIVATE_ROUTE_PREFIXES = ['/dashboard', '/users', '/settings']
-const AUTH_ROUTE_PREFIXES = ['/login', '/register']
-const DEFAULT_LOGIN_REDIRECT = '/login'
-const DEFAULT_AUTH_REDIRECT = '/dashboard'
+const PRIVATE_ROUTE_PREFIXES = ["/dashboard", "/users", "/settings"];
+const AUTH_ROUTE_PREFIXES = ["/login", "/register"];
+const DEFAULT_LOGIN_REDIRECT = "/login";
+const DEFAULT_AUTH_REDIRECT = "/dashboard";
 
 function matchesRoutePrefix(pathname: string, prefix: string) {
-  return pathname === prefix || pathname.startsWith(`${prefix}/`)
+  return pathname === prefix || pathname.startsWith(`${prefix}/`);
 }
 
 export function proxy(request: NextRequest) {
-  const hasSession = Boolean(request.cookies.get('refreshToken')?.value)
-  const { pathname } = request.nextUrl
+  const hasSession = Boolean(request.cookies.get("refreshToken")?.value);
+  const { pathname } = request.nextUrl;
+
+  if (pathname === "/") {
+    return NextResponse.redirect(
+      new URL(
+        hasSession ? DEFAULT_AUTH_REDIRECT : DEFAULT_LOGIN_REDIRECT,
+        request.url,
+      ),
+    );
+  }
 
   const isPrivateRoute = PRIVATE_ROUTE_PREFIXES.some((prefix) =>
-    matchesRoutePrefix(pathname, prefix)
-  )
+    matchesRoutePrefix(pathname, prefix),
+  );
   const isAuthRoute = AUTH_ROUTE_PREFIXES.some((prefix) =>
-    matchesRoutePrefix(pathname, prefix)
-  )
+    matchesRoutePrefix(pathname, prefix),
+  );
 
   if (isPrivateRoute && !hasSession) {
-    const loginUrl = new URL(DEFAULT_LOGIN_REDIRECT, request.url)
-    loginUrl.searchParams.set('callbackUrl', pathname)
-    return NextResponse.redirect(loginUrl)
+    const loginUrl = new URL(DEFAULT_LOGIN_REDIRECT, request.url);
+    loginUrl.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   if (isAuthRoute && hasSession) {
-    return NextResponse.redirect(new URL(DEFAULT_AUTH_REDIRECT, request.url))
+    return NextResponse.redirect(new URL(DEFAULT_AUTH_REDIRECT, request.url));
   }
 
-  return intlMiddleware(request)
+  const response = NextResponse.next();
+
+  if (!request.cookies.has("locale")) {
+    response.cookies.set("locale", "en");
+  }
+
+  return response;
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
-}
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
 ```
 
 ---
@@ -447,6 +448,7 @@ export const config = {
 ## 11. Theming — next-themes
 
 ### `src/components/layout/ThemeProvider.tsx`
+
 ```typescript
 'use client'
 
@@ -467,6 +469,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 ```
 
 ### `src/components/layout/ThemeToggle.tsx`
+
 ```typescript
 'use client'
 
@@ -508,10 +511,11 @@ export function ThemeToggle() {
 ## 13. Redux Store
 
 ### `src/store/index.ts`
+
 ```typescript
-import { configureStore } from '@reduxjs/toolkit'
-import { baseApi } from './api/baseApi'
-import authReducer from './slices/authSlice'
+import { configureStore } from "@reduxjs/toolkit";
+import { baseApi } from "./api/baseApi";
+import authReducer from "./slices/authSlice";
 
 export const store = configureStore({
   reducer: {
@@ -520,22 +524,24 @@ export const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(baseApi.middleware),
-})
+});
 
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 ```
 
 ### `src/store/hooks.ts`
-```typescript
-import { useDispatch, useSelector } from 'react-redux'
-import type { RootState, AppDispatch } from './index'
 
-export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
-export const useAppSelector = useSelector.withTypes<RootState>()
+```typescript
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "./index";
+
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>();
+export const useAppSelector = useSelector.withTypes<RootState>();
 ```
 
 ### `src/store/provider.tsx`
+
 ```typescript
 'use client'
 
@@ -550,34 +556,35 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 ```
 
 ### `src/store/slices/authSlice.ts`
+
 ```typescript
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { AuthUser } from '@/types/auth'
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { AuthUser } from "@/types/auth";
 
 interface AuthState {
-  user: AuthUser | null
-  isAuthenticated: boolean
+  user: AuthUser | null;
+  isAuthenticated: boolean;
 }
 
-const initialState: AuthState = { user: null, isAuthenticated: false }
+const initialState: AuthState = { user: null, isAuthenticated: false };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     setCredentials: (state, action: PayloadAction<{ user: AuthUser }>) => {
-      state.user = action.payload.user
-      state.isAuthenticated = true
+      state.user = action.payload.user;
+      state.isAuthenticated = true;
     },
     logout: (state) => {
-      state.user = null
-      state.isAuthenticated = false
+      state.user = null;
+      state.isAuthenticated = false;
     },
   },
-})
+});
 
-export const { setCredentials, logout } = authSlice.actions
-export default authSlice.reducer
+export const { setCredentials, logout } = authSlice.actions;
+export default authSlice.reducer;
 ```
 
 ---
@@ -585,86 +592,113 @@ export default authSlice.reducer
 ## 14. RTK Query — Base API
 
 ### `src/store/api/baseApi.ts`
+
 ```typescript
 import {
-  createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError,
-} from '@reduxjs/toolkit/query/react'
-import { logout } from '../slices/authSlice'
+  createApi,
+  fetchBaseQuery,
+  BaseQueryFn,
+  FetchArgs,
+  FetchBaseQueryError,
+} from "@reduxjs/toolkit/query/react";
+import { logout } from "../slices/authSlice";
 
-const rawBaseQuery = fetchBaseQuery({ baseUrl: '/api', credentials: 'include' })
+const rawBaseQuery = fetchBaseQuery({
+  baseUrl: "/api",
+  credentials: "include",
+});
 
-const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> =
-  async (args, api, extraOptions) => {
-    let result = await rawBaseQuery(args, api, extraOptions)
-    if (result.error?.status === 401) {
-      const refreshResult = await rawBaseQuery(
-        { url: '/auth/refresh', method: 'POST' }, api, extraOptions
-      )
-      if (refreshResult.data) {
-        result = await rawBaseQuery(args, api, extraOptions)
-      } else {
-        api.dispatch(logout())
-      }
+const baseQueryWithReauth: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  let result = await rawBaseQuery(args, api, extraOptions);
+  if (result.error?.status === 401) {
+    const refreshResult = await rawBaseQuery(
+      { url: "/auth/refresh", method: "POST" },
+      api,
+      extraOptions,
+    );
+    if (refreshResult.data) {
+      result = await rawBaseQuery(args, api, extraOptions);
+    } else {
+      api.dispatch(logout());
     }
-    return result
   }
+  return result;
+};
 
 export const baseApi = createApi({
-  reducerPath: 'api',
+  reducerPath: "api",
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['User', 'Auth'],
+  tagTypes: ["User", "Auth"],
   endpoints: () => ({}),
-})
+});
 ```
 
 ### `src/store/api/authApi.ts`
+
 ```typescript
-import { baseApi } from './baseApi'
-import type { LoginPayload, AuthResponse, AuthUser } from '@/types/auth'
+import { baseApi } from "./baseApi";
+import type { LoginPayload, AuthResponse, AuthUser } from "@/types/auth";
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginPayload>({
-      query: (credentials) => ({ url: '/auth/login', method: 'POST', body: credentials }),
+      query: (credentials) => ({
+        url: "/auth/login",
+        method: "POST",
+        body: credentials,
+      }),
     }),
     getMe: builder.query<AuthUser, void>({
-      query: () => '/auth/me',
-      providesTags: ['Auth'],
+      query: () => "/auth/me",
+      providesTags: ["Auth"],
     }),
   }),
-})
+});
 
-export const { useLoginMutation, useGetMeQuery } = authApi
+export const { useLoginMutation, useGetMeQuery } = authApi;
 ```
 
 ### `src/store/api/userApi.ts`
+
 ```typescript
-import { baseApi } from './baseApi'
-import type { AuthUser } from '@/types/auth'
-import type { PaginatedResponse, PaginationParams } from '@/types/pagination'
+import { baseApi } from "./baseApi";
+import type { AuthUser } from "@/types/auth";
+import type { PaginatedResponse, PaginationParams } from "@/types/pagination";
 
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getUsers: builder.query<PaginatedResponse<AuthUser>, PaginationParams>({
-      query: (params) => ({ url: '/users', params }),
-      providesTags: ['User'],
+      query: (params) => ({ url: "/users", params }),
+      providesTags: ["User"],
     }),
     createUser: builder.mutation<AuthUser, Partial<AuthUser>>({
-      query: (body) => ({ url: '/users', method: 'POST', body }),
-      invalidatesTags: ['User'],
+      query: (body) => ({ url: "/users", method: "POST", body }),
+      invalidatesTags: ["User"],
     }),
-    updateUser: builder.mutation<AuthUser, { id: string; body: Partial<AuthUser> }>({
-      query: ({ id, body }) => ({ url: `/users/${id}`, method: 'PATCH', body }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'User', id }],
+    updateUser: builder.mutation<
+      AuthUser,
+      { id: string; body: Partial<AuthUser> }
+    >({
+      query: ({ id, body }) => ({ url: `/users/${id}`, method: "PATCH", body }),
+      invalidatesTags: (result, error, { id }) => [{ type: "User", id }],
     }),
     deleteUser: builder.mutation<void, string>({
-      query: (id) => ({ url: `/users/${id}`, method: 'DELETE' }),
-      invalidatesTags: ['User'],
+      query: (id) => ({ url: `/users/${id}`, method: "DELETE" }),
+      invalidatesTags: ["User"],
     }),
   }),
-})
+});
 
-export const { useGetUsersQuery, useCreateUserMutation, useUpdateUserMutation, useDeleteUserMutation } = userApi
+export const {
+  useGetUsersQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+} = userApi;
 ```
 
 ---
@@ -672,6 +706,7 @@ export const { useGetUsersQuery, useCreateUserMutation, useUpdateUserMutation, u
 ## 15. Root Layout — All Providers
 
 ### `src/app/layout.tsx`
+
 ```typescript
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
@@ -713,19 +748,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 ```
 
 ### Page Loader (`nextjs-toploader`)
+
 Notice the `<NextTopLoader />` component right below the `<body>` tag. This automatically intercepts Next.js link clicks and router navigation events to show a thin, YouTube-style progress bar at the top of the screen. This drastically improves perceived performance for users during server-side transitions.
 
 ---
 
 ## 16. Error & Not Found Pages
 
-| File | When it renders | Has providers? |
-|---|---|---|
-| `not-found.tsx` | Route doesn't exist or `notFound()` called | ✅ Yes |
-| `error.tsx` | Runtime error in page/layout | ✅ Yes |
-| `global-error.tsx` | Root layout itself throws | ❌ No |
+| File               | When it renders                            | Has providers? |
+| ------------------ | ------------------------------------------ | -------------- |
+| `not-found.tsx`    | Route doesn't exist or `notFound()` called | ✅ Yes         |
+| `error.tsx`        | Runtime error in page/layout               | ✅ Yes         |
+| `global-error.tsx` | Root layout itself throws                  | ❌ No          |
 
 ### `src/app/not-found.tsx`
+
 ```typescript
 import { Link } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
@@ -746,6 +783,7 @@ export default function NotFound() {
 ```
 
 ### `src/app/error.tsx`
+
 ```typescript
 'use client'
 
@@ -768,6 +806,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 ```
 
 ### `src/app/global-error.tsx`
+
 ```typescript
 'use client'
 
@@ -791,6 +830,7 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
 ## 17. Dashboard Layout Components
 
 ### `src/components/layout/DashboardLayout.tsx`
+
 ```typescript
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
@@ -809,6 +849,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 ```
 
 ### `src/components/layout/Sidebar.tsx`
+
 ```typescript
 'use client'
 
@@ -842,6 +883,7 @@ export function Sidebar() {
 ```
 
 ### `src/components/layout/NavItem.tsx`
+
 ```typescript
 'use client'
 
@@ -864,6 +906,7 @@ export function NavItem({ href, label, icon: Icon, isActive }: NavItemProps) {
 ```
 
 ### `src/components/layout/Header.tsx`
+
 ```typescript
 import { ThemeToggle } from './ThemeToggle'
 import { UserMenu } from './UserMenu'
@@ -882,6 +925,7 @@ export function Header() {
 ```
 
 ### `src/components/layout/UserMenu.tsx`
+
 ```typescript
 'use client'
 
@@ -998,6 +1042,7 @@ export default function DataTable<TData extends { id: string | number }, TValue>
 ```
 
 **Usage:**
+
 ```typescript
 <DataTable
   columns={columns}
@@ -1134,7 +1179,7 @@ export function PageHeader({ title, description, action }: {
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
         {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
-      {action && <div className="flex-shrink-0">{action}</div>}
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   )
 }
@@ -1223,9 +1268,14 @@ Three functions that eliminate repetitive form submission code:
 const onSubmit = async (data) => {
   try {
     const res = await createPermit(data);
-    if (res.success) { toast.success(res.message); }
-    else { /* manually setError for every field */ }
-  } catch { /* duplicate Axios error handling */ }
+    if (res.success) {
+      toast.success(res.message);
+    } else {
+      /* manually setError for every field */
+    }
+  } catch {
+    /* duplicate Axios error handling */
+  }
 };
 
 // ✅ WITH helpers (one-liner)
@@ -1244,14 +1294,14 @@ const onSubmit = createFormSubmitHandler({
 export const createUserSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
-  role: z.enum(['admin', 'user', 'manager']),
-})
+  role: z.enum(["admin", "user", "manager"]),
+});
 
 // 2. Form component in src/components/forms/
 const form = useForm<CreateUserFormValues>({
   resolver: zodResolver(createUserSchema),
-  defaultValues: { name: '', email: '', role: 'user' },
-})
+  defaultValues: { name: "", email: "", role: "user" },
+});
 ```
 
 ---
@@ -1261,24 +1311,24 @@ const form = useForm<CreateUserFormValues>({
 **File:** `src/services/api/client.ts`
 
 ```typescript
-import axios, { AxiosError } from 'axios'
+import axios, { AxiosError } from "axios";
 
 const apiClient = axios.create({
-  baseURL: '/api',
-  headers: { 'Content-Type': 'application/json' },
+  baseURL: "/api",
+  headers: { "Content-Type": "application/json" },
   timeout: 15000,
   withCredentials: true,
-})
+});
 
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
-    if (error.response?.status === 401) window.location.href = '/login'
-    return Promise.reject(error)
-  }
-)
+    if (error.response?.status === 401) window.location.href = "/login";
+    return Promise.reject(error);
+  },
+);
 
-export default apiClient
+export default apiClient;
 ```
 
 ---
@@ -1286,35 +1336,51 @@ export default apiClient
 ## 22. TypeScript Types
 
 ### `src/types/api.ts`
+
 ```typescript
 export interface ApiResponse<T> {
-  success: boolean
-  message?: string
-  data?: T
-  errors?: Record<string, unknown> | null
+  success: boolean;
+  message?: string;
+  data?: T;
+  errors?: Record<string, unknown> | null;
 }
 ```
 
 ### `src/types/pagination.ts`
+
 ```typescript
 export type PaginatedResponse<T> = {
-  results: T[]; page: number; limit: number; totalPages: number; totalResults: number
-}
+  results: T[];
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalResults: number;
+};
 export type PaginationParams = {
-  page?: number; limit?: number; search?: string; sortBy?: string
-}
+  page?: number;
+  limit?: number;
+  search?: string;
+  sortBy?: string;
+};
 ```
 
 ### `src/types/auth.ts`
+
 ```typescript
 export type AuthUser = {
-  id: number; fullName: string; email: string; phone?: string;
-  isEmailVerified: boolean; isActive: boolean;
-  roles: string[]; permissions: string[];
-  createdAt: string; updatedAt: string;
-}
-export type LoginPayload = { email: string; password: string }
-export type AuthResponse = { user: AuthUser }
+  id: number;
+  fullName: string;
+  email: string;
+  phone?: string;
+  isEmailVerified: boolean;
+  isActive: boolean;
+  roles: string[];
+  permissions: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+export type LoginPayload = { email: string; password: string };
+export type AuthResponse = { user: AuthUser };
 ```
 
 ---
@@ -1322,64 +1388,79 @@ export type AuthResponse = { user: AuthUser }
 ## 23. Constants
 
 ### `src/constants/index.ts`
+
 ```typescript
-export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'My App'
+export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "My App";
 export const ROUTES = {
-  HOME: '/', LOGIN: '/login', DASHBOARD: '/dashboard', USERS: '/users',
-} as const
-export const PAGINATION = { DEFAULT_PAGE: 1, DEFAULT_LIMIT: 10 } as const
+  HOME: "/",
+  LOGIN: "/login",
+  DASHBOARD: "/dashboard",
+  USERS: "/users",
+} as const;
+export const PAGINATION = { DEFAULT_PAGE: 1, DEFAULT_LIMIT: 10 } as const;
 ```
 
 ---
 
 ## 24. Permissions / RBAC Layer
 
-### `src/auth/permissions.ts`
+### `src/security/permissions.ts`
+
 ```typescript
-import type { AuthUser } from '@/types/auth'
+import type { AuthUser } from "@/types/auth";
 
 export const PERMISSIONS = {
-  USERS_READ: 'users.read', USERS_CREATE: 'users.create',
-  USERS_UPDATE: 'users.update', USERS_DELETE: 'users.delete',
-} as const
+  USERS_READ: "users.read",
+  USERS_CREATE: "users.create",
+  USERS_UPDATE: "users.update",
+  USERS_DELETE: "users.delete",
+} as const;
 
 export function hasPermission(user: AuthUser | null, permission: string) {
-  return Boolean(user?.permissions.includes(permission))
+  return Boolean(user?.permissions.includes(permission));
 }
 ```
 
-### `src/auth/guards.ts`
+### `src/security/guards.ts`
+
 ```typescript
-import { notFound, redirect } from 'next/navigation'
-import { getCurrentUser } from '@/lib/session'
-import { hasPermission } from './permissions'
+import { notFound, redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/session";
+import { hasPermission } from "./permissions";
 
 export async function requireAuth() {
-  const user = await getCurrentUser()
-  if (!user) redirect('/login')
-  return user
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  return user;
 }
 
 export async function requirePermission(permission: string) {
-  const user = await requireAuth()
-  if (!hasPermission(user, permission)) notFound()
-  return user
+  const user = await requireAuth();
+  if (!hasPermission(user, permission)) notFound();
+  return user;
 }
 ```
 
-### `src/auth/Can.tsx`
+### `src/security/Can.tsx`
+
 ```typescript
-'use client'
+"use client";
 
-import { hasPermission } from './permissions'
-import { useAppSelector } from '@/store/hooks'
+import { hasPermission } from "./permissions";
+import { useAppSelector } from "@/store/hooks";
 
-export function Can({ permission, children, fallback = null }: {
-  permission: string; children: React.ReactNode; fallback?: React.ReactNode
+export function Can({
+  permission,
+  children,
+  fallback = null,
+}: {
+  permission: string;
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
 }) {
-  const user = useAppSelector((state) => state.auth.user)
-  if (!hasPermission(user, permission)) return fallback
-  return children
+  const user = useAppSelector((state) => state.auth.user);
+  if (!hasPermission(user, permission)) return fallback;
+  return children;
 }
 ```
 
@@ -1388,6 +1469,7 @@ export function Can({ permission, children, fallback = null }: {
 ## 25. Architecture Rules
 
 ### Data Flow
+
 ```
 Page → Server Component (requireAuth/requirePermission)
   → Client component (interaction boundary)
@@ -1397,12 +1479,14 @@ Page → Server Component (requireAuth/requirePermission)
 ```
 
 ### Component Rules
+
 - `components/ui/` → Never edit ShadCN-generated files. Custom primitives (timeline, phone-input) are your code.
 - `components/common/` → No API calls. No business logic. Pure rendering.
 - `components/forms/` → One form per file. Uses `createFormSubmitHandler()`.
 - `components/layout/` → Shell only. No feature logic.
 
 ### State Rules
+
 - Server-rendered data → Server Components
 - Interactive server data → RTK Query (never `useState` + `useEffect`)
 - Auth state → authSlice (safe metadata only)
@@ -1450,11 +1534,11 @@ Example: adding a "Products" feature.
 
 ## 28. Version Notes
 
-| Package | Version | Notes |
-|---|---|---|
-| Next.js | 16.x | Proxy at `src/proxy.ts` |
-| Redux Toolkit | 2.x | RTK Query included |
-| TanStack Table | 8.x | `@tanstack/react-table` |
-| next-intl | 4.x | `localePrefix: 'never'` |
-| next-themes | 0.4.x | `attribute="class"` |
-| CVA | 0.7.x | Component variants |
+| Package        | Version | Notes                   |
+| -------------- | ------- | ----------------------- |
+| Next.js        | 16.x    | Proxy at `src/proxy.ts` |
+| Redux Toolkit  | 2.x     | RTK Query included      |
+| TanStack Table | 8.x     | `@tanstack/react-table` |
+| next-intl      | 4.x     | `localePrefix: 'never'` |
+| next-themes    | 0.4.x   | `attribute="class"`     |
+| CVA            | 0.7.x   | Component variants      |

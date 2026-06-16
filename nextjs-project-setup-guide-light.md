@@ -115,7 +115,7 @@ src/
 │   └── layout.tsx
 │
 ├── proxy.ts
-├── i18n/ (routing.ts, request.ts, navigation.ts)
+├── i18n/ (request.ts)
 ├── messages/en.json
 │
 ├── components/
@@ -137,7 +137,7 @@ src/
 ├── lib/ (utils.ts, auth.ts, form-helper.ts, validations.ts)
 ├── services/api/client.ts
 ├── types/ (api.ts, auth.ts, pagination.ts)
-├── auth/ (permissions.ts, guards.ts, Can.tsx)
+├── security/ (permissions.ts, guards.ts, Can.tsx)
 └── constants/index.ts
 ```
 
@@ -151,7 +151,7 @@ Same as the enterprise guide — `.env.local`, `.env.example`, and `next.config.
 
 ## 7. Internationalization (next-intl)
 
-Identical to the enterprise guide: `routing.ts`, `request.ts`, `navigation.ts`, and `messages/en.json`.
+Identical to the enterprise guide: `request.ts` and `messages/en.json`. Note that `routing.ts` and `navigation.ts` are no longer needed since we use a cookie-based approach instead of Next.js routing middleware.
 
 ---
 
@@ -376,7 +376,97 @@ Same implementations as the enterprise guide (`not-found.tsx`, `error.tsx`, `glo
 
 ---
 
-## 15. Dashboard Layout Components
+## 15. Core Pages & Layouts
+
+To avoid 404s when running the project, create these minimum required pages:
+
+### `src/app/(auth)/login/page.tsx`
+```typescript
+import { useTranslations } from 'next-intl'
+
+export default function LoginPage() {
+  const t = useTranslations('auth')
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-muted/50">
+      <div className="w-full max-w-md p-8 space-y-6 bg-background rounded-lg shadow-md border">
+        <div className="space-y-2 text-center">
+          <h1 className="text-3xl font-bold">{t('loginTitle')}</h1>
+          <p className="text-muted-foreground">{t('loginSubtitle')}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+### `src/app/(dashboard)/layout.tsx`
+```typescript
+import { UserMenu } from '@/components/layout/UserMenu'
+import { ThemeToggle } from '@/components/layout/ThemeToggle'
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex h-screen overflow-hidden bg-background">
+      <div className="w-64 border-r bg-muted/20 hidden md:block">
+        <div className="p-4 border-b">
+          <h2 className="text-lg font-bold">My App</h2>
+        </div>
+      </div>
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        <header className="h-16 border-b px-6 flex items-center justify-between bg-background">
+          <div className="font-semibold md:hidden">My App</div>
+          <div className="hidden md:block" />
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <UserMenu />
+          </div>
+        </header>
+        <main className="flex-1 overflow-y-auto p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  )
+}
+```
+
+### `src/app/(dashboard)/dashboard/page.tsx`
+```typescript
+import { useTranslations } from 'next-intl'
+
+export default function DashboardPage() {
+  const t = useTranslations('nav')
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">{t('dashboard')}</h1>
+      <div className="p-6 border rounded-lg bg-card">
+        <p className="text-muted-foreground">Welcome to the dashboard!</p>
+      </div>
+    </div>
+  )
+}
+```
+
+### `src/app/(dashboard)/users/page.tsx`
+```typescript
+import { useTranslations } from 'next-intl'
+
+export default function UsersPage() {
+  const t = useTranslations('nav')
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold tracking-tight">{t('users')}</h1>
+      <div className="p-6 border rounded-lg bg-card">
+        <p className="text-muted-foreground">Manage users here.</p>
+      </div>
+    </div>
+  )
+}
+```
+
+---
+
+## 15.5 Dashboard Layout Components
 
 Same implementations as the enterprise guide, but `UserMenu.tsx` uses Zustand instead of Redux:
 
