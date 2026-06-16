@@ -764,7 +764,7 @@ Notice the `<NextTopLoader />` component right below the `<body>` tag. This auto
 ### `src/app/not-found.tsx`
 
 ```typescript
-import { Link } from '@/i18n/navigation'
+import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { FileQuestion } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
@@ -853,7 +853,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 ```typescript
 'use client'
 
-import { usePathname } from '@/i18n/navigation'
+import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { LayoutDashboard, Users, Settings } from 'lucide-react'
 import { NavItem } from './NavItem'
@@ -887,7 +887,7 @@ export function Sidebar() {
 ```typescript
 'use client'
 
-import { Link } from '@/i18n/navigation'
+import Link from 'next/link'
 import { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -933,7 +933,7 @@ import { useTranslations } from 'next-intl'
 import { LogOut } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/store/hooks'
 import { logout } from '@/store/slices/authSlice'
-import { useRouter } from '@/i18n/navigation'
+import { useRouter } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -1504,7 +1504,6 @@ Page → Server Component (requireAuth/requirePermission)
 ❌ Multiple createApi() instances → inject into baseApi
 ❌ Raw useDispatch / useSelector → use typed hooks
 ❌ Hardcoded UI strings → use next-intl messages
-❌ next/navigation imports → use @/i18n/navigation
 ❌ Editing ShadCN-generated files → use shadcn CLI
 ❌ Manual try/catch in every form → use createFormSubmitHandler()
 ❌ Building custom filter UIs per page → use DynamicSearchControls

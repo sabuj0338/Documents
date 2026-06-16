@@ -477,7 +477,7 @@ Same implementations as the enterprise guide, but `UserMenu.tsx` uses Zustand in
 import { useTranslations } from 'next-intl'
 import { LogOut } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
-import { useRouter } from '@/i18n/navigation'
+import { useRouter } from 'next/navigation'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -593,7 +593,6 @@ Page → Server Component (requireAuth/requirePermission)
 ❌ useEffect + fetch for data → use React Query hooks
 ❌ localStorage for tokens → use HttpOnly cookies
 ❌ Manual try/catch in every form → use createFormSubmitHandler()
-❌ next/navigation imports → use @/i18n/navigation
 ❌ Hardcoded UI strings → use next-intl messages
 ❌ Editing ShadCN-generated files → use shadcn CLI
 ❌ Building custom filter UIs per page → use DynamicSearchControls
