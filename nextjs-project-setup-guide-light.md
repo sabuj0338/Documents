@@ -90,7 +90,7 @@ pnpm add -D @tanstack/react-query-devtools \
   vitest @testing-library/react @testing-library/jest-dom jsdom playwright \
   openapi-typescript prettier prettier-plugin-tailwindcss eslint-config-prettier
 
-pnpm dlx shadcn@latest add button input label form card dialog alert-dialog \
+pnpm dlx shadcn@latest add button input label field card dialog alert-dialog \
   table dropdown-menu select textarea badge skeleton sheet separator \
   sonner avatar scroll-area tooltip popover command calendar -y
 
@@ -514,7 +514,261 @@ export function UserMenu() {
 
 ---
 
-## 16. Custom Components
+## 16. Form & Field Component Usage
+
+The latest Shadcn UI uses the `field` component (from Radix) instead of `form`. Here's how to build forms with React Hook Form and the `field` component:
+
+### `src/components/forms/LoginForm.tsx`
+```typescript
+'use client'
+
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { useTranslations } from 'next-intl'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Field, FieldControl, FieldDescription, FieldLabel, FieldMessage } from '@/components/ui/field'
+import { useLogin } from '@/hooks/api/useAuth'
+import { toast } from 'sonner'
+
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+})
+
+type LoginFormData = z.infer<typeof loginSchema>
+
+export function LoginForm() {
+  const t = useTranslations('auth')
+  const { mutate: login, isPending } = useLogin()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  })
+
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      login(data, {
+        onSuccess: () => {
+          toast.success(t('loginSuccess'))
+        },
+        onError: (error) => {
+          toast.error(error.message || t('loginError'))
+        },
+      })
+    } catch (error) {
+      toast.error(t('loginError'))
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <Field>
+        <FieldLabel>{t('emailLabel')}</FieldLabel>
+        <FieldControl>
+          <Input {...register('email')} placeholder="user@example.com" />
+        </FieldControl>
+        {errors.email && <FieldMessage>{errors.email.message}</FieldMessage>}
+      </Field>
+
+      <Field>
+        <FieldLabel>{t('passwordLabel')}</FieldLabel>
+        <FieldControl>
+          <Input {...register('password')} type="password" placeholder="••••••••" />
+        </FieldControl>
+        <FieldDescription>{t('passwordHelp')}</FieldDescription>
+        {errors.password && <FieldMessage>{errors.password.message}</FieldMessage>}
+      </Field>
+
+      <Button type="submit" disabled={isPending} className="w-full">
+        {isPending ? t('loggingIn') : t('login')}
+      </Button>
+    </form>
+  )
+}
+```
+
+### Form Submit Handler Helper
+Create `src/lib/form-helper.ts` for reusable form submission logic:
+
+```typescript
+import { AxiosError } from 'axios'
+import { toast } from 'sonner'
+
+export function createFormSubmitHandler<T, R = any>(
+  mutationFn: (data: T) => Promise<R>,
+  options?: {
+    onSuccess?: (data: R) => void | Promise<void>
+    onError?: (error: string) => void
+    successMessage?: string
+    errorMessage?: string
+  }
+) {
+  return async (data: T) => {
+    try {
+      const result = await mutationFn(data)
+      options?.onSuccess?.(result)
+      if (options?.successMessage) {
+        toast.success(options.successMessage)
+      }
+      return result
+    } catch (error) {
+      const message =
+        error instanceof AxiosError
+          ? error.response?.data?.message || error.message
+          : 'An error occurred'
+      options?.onError?.(message)
+      if (options?.errorMessage) {
+        toast.error(options.errorMessage)
+      }
+      throw error
+    }
+  }
+}
+
+export function handleFormResponse(response: any, defaultMessage?: string) {
+  if (response?.success) {
+    toast.success(response?.message || defaultMessage || 'Success!')
+    return true
+  } else {
+    toast.error(response?.message || defaultMessage || 'Failed!')
+    return false
+  }
+}
+```
+
+### Advanced Form Example with Dynamic Fields
+```typescript
+'use client'
+
+import { useForm, useFieldArray } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Field, FieldControl, FieldLabel, FieldMessage } from '@/components/ui/field'
+import { Textarea } from '@/components/ui/textarea'
+import { X } from 'lucide-react'
+import { createFormSubmitHandler } from '@/lib/form-helper'
+import apiClient from '@/lib/axios'
+
+const productSchema = z.object({
+  name: z.string().min(1, 'Product name is required'),
+  description: z.string().min(10, 'Description must be at least 10 characters'),
+  price: z.number().positive('Price must be positive'),
+  tags: z.array(z.object({ value: z.string().min(1) })).min(1, 'Add at least one tag'),
+})
+
+type ProductFormData = z.infer<typeof productSchema>
+
+export function ProductForm() {
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors, isSubmitting },
+  } = useForm<ProductFormData>({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      tags: [{ value: '' }],
+    },
+  })
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'tags',
+  })
+
+  const onSubmit = handleSubmit(
+    createFormSubmitHandler(
+      (data) => apiClient.post('/products', data),
+      {
+        successMessage: 'Product created successfully!',
+        errorMessage: 'Failed to create product',
+      }
+    )
+  )
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-6 max-w-2xl">
+      <Field>
+        <FieldLabel>Product Name</FieldLabel>
+        <FieldControl>
+          <Input {...register('name')} placeholder="Enter product name" />
+        </FieldControl>
+        {errors.name && <FieldMessage>{errors.name.message}</FieldMessage>}
+      </Field>
+
+      <Field>
+        <FieldLabel>Description</FieldLabel>
+        <FieldControl>
+          <Textarea {...register('description')} placeholder="Product details..." rows={4} />
+        </FieldControl>
+        {errors.description && <FieldMessage>{errors.description.message}</FieldMessage>}
+      </Field>
+
+      <Field>
+        <FieldLabel>Price</FieldLabel>
+        <FieldControl>
+          <Input {...register('price', { valueAsNumber: true })} type="number" placeholder="0.00" />
+        </FieldControl>
+        {errors.price && <FieldMessage>{errors.price.message}</FieldMessage>}
+      </Field>
+
+      <div className="space-y-2">
+        <FieldLabel>Tags</FieldLabel>
+        {fields.map((field, index) => (
+          <div key={field.id} className="flex gap-2">
+            <Field className="flex-1">
+              <FieldControl>
+                <Input {...register(`tags.${index}.value`)} placeholder="Add a tag" />
+              </FieldControl>
+            </Field>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => remove(index)}
+              disabled={fields.length === 1}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ))}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => append({ value: '' })}
+        >
+          Add Tag
+        </Button>
+        {errors.tags && <FieldMessage>{errors.tags.message}</FieldMessage>}
+      </div>
+
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Creating...' : 'Create Product'}
+      </Button>
+    </form>
+  )
+}
+```
+
+### Key Points for Field Component Usage
+
+1. **Import**: Use `Field`, `FieldControl`, `FieldLabel`, `FieldDescription`, and `FieldMessage` from `@/components/ui/field`
+2. **Structure**: Wrap each input with `<Field>` and `<FieldControl>`
+3. **Error Handling**: Display validation errors with `<FieldMessage>`
+4. **Accessibility**: `FieldLabel` automatically links to inputs via proper ID/htmlFor attributes
+5. **Descriptions**: Use `<FieldDescription>` for helper text below labels
+
+---
+
+## 17. Custom Components
 
 All custom components from the enterprise guide are **fully reusable** in the light version:
 
@@ -538,7 +792,7 @@ The only difference is in the **data source**: use React Query hooks instead of 
 
 ---
 
-## 17. RBAC Layer
+## 18. RBAC Layer
 
 Same `permissions.ts` and `guards.ts` as the enterprise guide.
 
@@ -560,13 +814,13 @@ export function Can({ permission, children, fallback = null }: {
 
 ---
 
-## 18. TypeScript Types, Constants, Axios Client
+## 19. TypeScript Types, Constants, Axios Client
 
 All identical to the enterprise guide. See sections 21-23 of the enterprise guide.
 
 ---
 
-## 19. Architecture Rules
+## 20. Architecture Rules
 
 ### Data Flow (Light Version)
 ```
@@ -587,7 +841,7 @@ Page → Server Component (requireAuth/requirePermission)
 
 ---
 
-## 20. Anti-Patterns
+## 21. Anti-Patterns
 
 ```
 ❌ useEffect + fetch for data → use React Query hooks
@@ -601,7 +855,7 @@ Page → Server Component (requireAuth/requirePermission)
 
 ---
 
-## 21. How to Add a New Feature
+## 22. How to Add a New Feature
 
 1. **Types** → `src/types/product.ts`
 2. **Validation** → `src/lib/validations.ts`
@@ -615,7 +869,7 @@ Page → Server Component (requireAuth/requirePermission)
 
 ---
 
-## 22. Version Notes
+## 23. Version Notes
 
 | Package | Version | Notes |
 |---|---|---|
