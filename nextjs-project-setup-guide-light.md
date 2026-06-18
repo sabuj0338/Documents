@@ -92,7 +92,7 @@ pnpm add -D @tanstack/react-query-devtools \
 
 pnpm dlx shadcn@latest add button input label field card dialog alert-dialog \
   table dropdown-menu select textarea badge skeleton sheet separator \
-  sonner avatar scroll-area tooltip popover command calendar -y
+  sonner avatar scroll-area tooltip popover command calendar checkbox -y
 
 echo "✅ Setup Complete!"
 ```
